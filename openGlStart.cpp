@@ -3,6 +3,12 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) //This function will be called everytime a resize of a window happens
+{
+  glViewport(0, 0, width, height); //Specifies the area where to render openGL on the window, first two parameters tells the function where top left corner is, and the last two are width and height;
+}
+
 int main()
 {
   glfwInit(); //Initialize glfw
@@ -10,7 +16,7 @@ int main()
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6); //Specify minor version of OpenGl
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //Specify which profile of OpenGl we are using
 
-  GLFWwindow* window = glfwCreateWindow(800, 600, "First window", glfwGetPrimaryMonitor(), NULL); //Creating a window and storing it as a pointer with a name "window"
+  GLFWwindow* window = glfwCreateWindow(800, 600, "First window", NULL, NULL); //Creating a window and storing it as a pointer with a name "window"
   //glfwCreateWindow function takes 5 params (width, height, name of window, which monitor to make the window on, which window to share context with, it could be textures, vertex, element buffers, etc.)
   if(window == NULL) //Check if the function returned NULL
   {
@@ -26,5 +32,14 @@ int main()
     return -1;//Return -1 indicating there's been an error
   }
 
-  glViewport(0, 0, 800, 600); //Specifies the area where to render openGL on the window, first two parameters tells the function where top left corner is, and the last two are width and height;
+  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);//This function adjusts the viewport everytime the window gets resized. It takes in two parameters, a GLFWwindow* and a function
+
+  while(!glfwWindowShouldClose(window)) //glfwWindowShouldClose is true when an attempt of closing a window happens
+  {
+    glfwSwapBuffers(window); //Swaps the back buffer with the front buffer
+    glfwPollEvents(); //Registers events like mouse clicks, keyboard inputs, etc.
+  }
+
+  glfwTerminate(); //Terminates all windows and frees allocated resources
+  return 0; //Returns 0 stating everything went fine
 }
