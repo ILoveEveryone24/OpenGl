@@ -17,7 +17,7 @@ int main()
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //Specify which profile of OpenGl we are using
 
   GLFWwindow* window = glfwCreateWindow(800, 600, "First window", NULL, NULL); //Creating a window and storing it as a pointer with a name "window"
-  //glfwCreateWindow function takes 5 params (width, height, name of window, which monitor to make the window on, which window to share context with, it could be textures, vertex, element buffers, etc.)
+  //glfwCreateWindow function takes 5 params (width, height, name of window, should it open fullscreen, which window to share context with, it could be textures, vertex, element buffers, etc.)
   if(window == NULL) //Check if the function returned NULL
   {
     std::cout << "No window :c" << std::endl;//Print "No window :c"
