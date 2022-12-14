@@ -34,8 +34,21 @@ int main()
 
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);//This function adjusts the viewport everytime the window gets resized. It takes in two parameters, a GLFWwindow* and a function
 
+  // Specifying triangle vertices
+  float vertices[] = {
+    -0.5f, -0.5f, 1.0f,
+    0.5f, -0.5f, 0.0f,
+    0.0f, 0.5f, -1.0f
+  };
+
+  unsigned int VBO; //Defining vertex buffer object
+  glGenBuffers(1, &VBO); //Generating buffer with 2 parameters, amount of buffers, and reference to a buffer
+  glBindBuffer(GL_ARRAY_BUFFER, VBO); //Binding Vertex buffer object with GL_ARRAY_BUFFER
+
   while(!glfwWindowShouldClose(window)) //glfwWindowShouldClose is true when an attempt of closing a window happens
   {
+    glClearColor(0.2f, 0.3f, 0.4f, 1.0f); //Clearing the buffer with rgb values, state setting function
+    glClear(GL_COLOR_BUFFER_BIT); //Clearing the buffer with color, state using function
     glfwSwapBuffers(window); //Swaps the back buffer with the front buffer
     glfwPollEvents(); //Registers events like mouse clicks, keyboard inputs, etc.
   }
