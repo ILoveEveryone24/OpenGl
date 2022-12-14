@@ -10,6 +10,13 @@ const char *vertexShaderSource = "#version 460 core\n"
   " gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0f)\n"
   "}\0";//Vertex Shader
 
+const char *fragmentShaderSource = "#version 460 core\n"
+  "out vec4 FragColor;\n"
+  "void main()\n"
+  "{\n"
+  "FragColor = vec4(1.0f, 0.8f, 0.4f, 0.9f);\n"
+  ")\0";
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) //This function will be called everytime a resize of a window happens
 {
   glViewport(0, 0, width, height); //Specifies the area where to render openGL on the window, first two parameters tells the function where top left corner is, and the last two are width and height;
@@ -58,6 +65,24 @@ int main()
 
   glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); //Attaching the vertex shader. Args(Where to attach, how many strings as source code, what to attach, NULL)
   glCompileShader(vertexShader); //Compiling vertex shaders
+
+  unsigned int fragmentShader;
+  fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+  glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+  glCompileShader(fragmentShader);
+
+  unsigned int shaderProgram; //Creating an uint that will store the shaderProgram
+  shaderProgram = glCreateProgram(); //Creating shaderProgram that will link together all the shaders
+
+  glAttachShader(shaderProgram, vertexShader); //Attaching vertexShaders to shaderProgram
+  glAttachShader(shaderProgram, fragmentShader); //Attaching fragmentShaders to shaderProgram
+  glLinkProgram(shaderProgram); //Linking all the attached shaders together i.e. linking vertex shaders and fragment shaders together
+
+  glUseProgram(shaderProgram);
+
+  glDeleteShader(vertexShader);
+  glDeleteShader(fragmentShader);
 
   while(!glfwWindowShouldClose(window)) //glfwWindowShouldClose is true when an attempt of closing a window happens
   {
