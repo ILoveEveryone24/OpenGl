@@ -4,18 +4,18 @@
 #include <GLFW/glfw3.h>
 
 const char *vertexShaderSource = "#version 460 core\n"
-  "layout (location = 0) in vec3 aPos;\n"
-  "void main()\n"
-  "{\n"
-  " gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0f)\n"
-  "}\0";//Vertex Shader
+    "layout (location = 0) in vec3 aPos;\n"
+    "void main()\n"
+    "{\n"
+    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "}\0";//Vertex Shader
 
 const char *fragmentShaderSource = "#version 460 core\n"
-  "out vec4 FragColor;\n"
-  "void main()\n"
-  "{\n"
-  "FragColor = vec4(1.0f, 0.8f, 0.4f, 0.9f);\n"
-  ")\0";
+    "out vec4 FragColor;\n"
+    "void main()\n"
+    "{\n"
+    "   FragColor = vec4(0.2f, 0.4f, 0.4f, 1.0f);\n"
+    "}\n\0";//Fragment Shader
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) //This function will be called everytime a resize of a window happens
 {
@@ -50,14 +50,16 @@ int main()
   // Specifying triangle vertices
   float vertices[] = {
     -0.5f, -0.5f, 1.0f,
-    0.5f, -0.5f, 0.0f,
-    0.0f, 0.5f, -1.0f
+    0.5f, -0.5f, 1.0f,
+    0.0f, 0.5f, 1.0f
   };
 
   unsigned int VBO; //Defining vertex buffer object
+  unsigned int VAO; //Defining vertex array object
+  glGenVertexArrays(1, &VAO); // Generates Vertex Array with the VAO
   glGenBuffers(1, &VBO); //Generating buffer with 2 parameters, amount of buffers, and reference to a buffer
+  glBindVertexArray(VAO); //Binding the Vertex array to openGL
   glBindBuffer(GL_ARRAY_BUFFER, VBO); //Binding Vertex buffer object with GL_ARRAY_BUFFER
-
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //Copies data (vertices) to currently bound buffer. Args (Where to copy data to, size of data in bytes, data we want to send, how we want the graphics card to manage data)
 
   unsigned int vertexShader; //Creating vertexShader, where the vertex shader will be stored
@@ -66,11 +68,11 @@ int main()
   glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); //Attaching the vertex shader. Args(Where to attach, how many strings as source code, what to attach, NULL)
   glCompileShader(vertexShader); //Compiling vertex shaders
 
-  unsigned int fragmentShader;
-  fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+  unsigned int fragmentShader; //Creating fragmentShader, where the fragment shader will be stored
+  fragmentShader = glCreateShader(GL_FRAGMENT_SHADER); //Creating the fragment shader
 
-  glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-  glCompileShader(fragmentShader);
+  glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL); //Attaching the fragment shader code to fragmentShader.
+  glCompileShader(fragmentShader); //Compiling the fragment shader
 
   unsigned int shaderProgram; //Creating an uint that will store the shaderProgram
   shaderProgram = glCreateProgram(); //Creating shaderProgram that will link together all the shaders
@@ -79,15 +81,23 @@ int main()
   glAttachShader(shaderProgram, fragmentShader); //Attaching fragmentShaders to shaderProgram
   glLinkProgram(shaderProgram); //Linking all the attached shaders together i.e. linking vertex shaders and fragment shaders together
 
-  glUseProgram(shaderProgram);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);// Specifying the location and data of vertex attribute
 
-  glDeleteShader(vertexShader);
-  glDeleteShader(fragmentShader);
+  glEnableVertexAttribArray(0); //Enabling the vertex attribute
+
+  glDeleteShader(vertexShader); //Deleting the vertex shader, since we dont need it anymore
+  glDeleteShader(fragmentShader); //Deleting the fragment shader, since we dont need it anymore
+
 
   while(!glfwWindowShouldClose(window)) //glfwWindowShouldClose is true when an attempt of closing a window happens
   {
     glClearColor(0.2f, 0.3f, 0.4f, 1.0f); //Clearing the buffer with rgb values, state setting function
     glClear(GL_COLOR_BUFFER_BIT); //Clearing the buffer with color, state using function
+
+    glDrawArrays(GL_TRIANGLES, 0, 3); // Uses vertex data that was passed previously to draw primatives, in this case triangles
+    glUseProgram(shaderProgram); // Specifying which shader program to use, shaderProgram is where we linked vertexShader and fragmentShader together
+
+    glBindVertexArray(VAO); // Binding the VAO
     glfwSwapBuffers(window); //Swaps the back buffer with the front buffer
     glfwPollEvents(); //Registers events like mouse clicks, keyboard inputs, etc.
   }
