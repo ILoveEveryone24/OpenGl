@@ -47,17 +47,20 @@ int main()
 
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);//This function adjusts the viewport everytime the window gets resized. It takes in two parameters, a GLFWwindow* and a function
 
-  // Specifying square vertices
+  // Specifying triangles vertices
   float vertices[] = {
-    0.5f, 0.5f, 0.0f,
-    0.5f, -0.5f, 0.0f,
-    -0.5f, 0.5f, 0.0f,
-    -0.5f, -0.5f, 0.0f
+    0.0f, 0.0f, 0.0f,
+    -0.5f, 0.0f, 0.0f,
+    -0.25f, 0.5f, 0.0f,
+    0.5f, 0.0f, 0.0f,
+    0.25f, 0.5f, 0.0f,
+    0.0f, 1.0f, 0.0f
   };
-// Specifying the order in which 2 triangles should be drawn
+// Specifying the order in which the vertices will be drawn
   unsigned int indices[] = {
     0, 1, 2,
-    2, 3, 1
+    0, 3, 4,
+    2, 5, 4
 };
 
   unsigned int VBO; //Defining vertex buffer object
@@ -102,7 +105,7 @@ int main()
   {
     glClearColor(0.2f, 0.3f, 0.4f, 1.0f); //Clearing the buffer with rgb values, state setting function
     glClear(GL_COLOR_BUFFER_BIT); //Clearing the buffer with color, state using function
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // Telling it to draw tringles based on the element buffer
+    glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0); // Telling it to draw tringles based on the element buffer
     glUseProgram(shaderProgram); // Specifying which shader program to use, shaderProgram is where we linked vertexShader and fragmentShader together
 
     glBindVertexArray(VAO); // Binding the VAO
