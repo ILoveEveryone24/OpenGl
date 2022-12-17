@@ -48,32 +48,41 @@ int main()
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);//This function adjusts the viewport everytime the window gets resized. It takes in two parameters, a GLFWwindow* and a function
 
   // Specifying triangles vertices
-  float vertices[] = {
+  float firstT[] = {
     0.0f, 0.0f, 0.0f,
     -0.5f, 0.0f, 0.0f,
-    -0.25f, 0.5f, 0.0f,
+    -0.25f, 0.5f, 0.0f
+  };
+
+  float secondT[] ={
+    0.0f, 0.0f, 0.0f,
     0.5f, 0.0f, 0.0f,
-    0.25f, 0.5f, 0.0f,
-    0.0f, 1.0f, 0.0f
+    0.25f, 0.5f, 0.0f
   };
 // Specifying the order in which the vertices will be drawn
-  unsigned int indices[] = {
-    0, 1, 2,
-    0, 3, 4,
-    2, 5, 4
-};
+  //unsigned int indices[] = {
+   // 0, 1, 2,
+  //  0, 3, 4,
+ //   2, 5, 4
+//};
 
-  unsigned int VBO; //Defining vertex buffer object
-  unsigned int VAO; //Defining vertex array object
-  unsigned int EBO; // Defining element buffer object
-  glGenVertexArrays(1, &VAO); // Generates Vertex Array with the VAO
-  glGenBuffers(1, &VBO); //Generating buffer with 2 parameters, amount of buffers, and reference to a buffer
-  glGenBuffers(1, &EBO); // Generating the element buffer object with EBO
-  glBindVertexArray(VAO); //Binding the Vertex array to openGL
-  glBindBuffer(GL_ARRAY_BUFFER, VBO); //Binding Vertex buffer object with GL_ARRAY_BUFFER
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //Copies data (vertices) to currently bound buffer. Args (Where to copy data to, size of data in bytes, data we want to send, how we want the graphics card to manage data)
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); // Binding the EBO to the elebemt array buffer
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+  unsigned int VBO[2], VAO[2]; //Defining Vertex buffer object and vertex array object
+  //unsigned int EBO; // Defining element buffer object
+  glGenVertexArrays(2, VAO); // Generates Vertex Array with the VAO
+  glGenBuffers(2, VBO); //Generating buffer with 2 parameters, amount of buffers, and reference to a buffer
+ // glGenBuffers(1, &EBO); // Generating the element buffer object with EBO
+  glBindVertexArray(VAO[0]); //Binding the Vertex array to openGL
+  glBindBuffer(GL_ARRAY_BUFFER, VBO[0]); //Binding Vertex buffer object with GL_ARRAY_BUFFER
+  glBufferData(GL_ARRAY_BUFFER, sizeof(firstT), firstT, GL_STATIC_DRAW); //Copies data (vertices) to currently bound buffer. Args (Where to copy data to, size of data in bytes, data we want to send, how we want the graphics card to manage data)
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);// Specifying the location and data of vertex attribute
+  glEnableVertexAttribArray(0); //Enabling the vertex attribute
+  glBindVertexArray(VAO[1]); //Binding the Vertex array to openGL
+  glBindBuffer(GL_ARRAY_BUFFER, VBO[1]); //Binding Vertex buffer object with GL_ARRAY_BUFFER
+  //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); // Binding the EBO to the elebemt array buffer
+  glBufferData(GL_ARRAY_BUFFER, sizeof(secondT), secondT, GL_STATIC_DRAW);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);// Specifying the location and data of vertex attribute
+  glEnableVertexAttribArray(0); //Enabling the vertex attribute
   unsigned int vertexShader; //Creating vertexShader, where the vertex shader will be stored
   vertexShader = glCreateShader(GL_VERTEX_SHADER); //Create the vertex shader, the GL_VERTEX_SHADER specifies what kind of shader we want to create
 
@@ -93,9 +102,7 @@ int main()
   glAttachShader(shaderProgram, fragmentShader); //Attaching fragmentShaders to shaderProgram
   glLinkProgram(shaderProgram); //Linking all the attached shaders together i.e. linking vertex shaders and fragment shaders together
 
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);// Specifying the location and data of vertex attribute
 
-  glEnableVertexAttribArray(0); //Enabling the vertex attribute
 
   glDeleteShader(vertexShader); //Deleting the vertex shader, since we dont need it anymore
   glDeleteShader(fragmentShader); //Deleting the fragment shader, since we dont need it anymore
@@ -105,10 +112,13 @@ int main()
   {
     glClearColor(0.2f, 0.3f, 0.4f, 1.0f); //Clearing the buffer with rgb values, state setting function
     glClear(GL_COLOR_BUFFER_BIT); //Clearing the buffer with color, state using function
-    glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0); // Telling it to draw tringles based on the element buffer
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glUseProgram(shaderProgram); // Specifying which shader program to use, shaderProgram is where we linked vertexShader and fragmentShader together
+    glBindVertexArray(VAO[0]); // Binding the VAO
+    glDrawArrays(GL_TRIANGLES, 0, 5); // Telling it to draw tringles based on the element buffer
 
-    glBindVertexArray(VAO); // Binding the VAO
+    glBindVertexArray(VAO[1]); // Binding the VAO
+    glDrawArrays(GL_TRIANGLES, 0, 5); // Telling it to draw tringles based on the element buffer
     glfwSwapBuffers(window); //Swaps the back buffer with the front buffer
     glfwPollEvents(); //Registers events like mouse clicks, keyboard inputs, etc.
   }
