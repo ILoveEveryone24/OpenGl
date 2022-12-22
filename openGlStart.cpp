@@ -1,20 +1,24 @@
 #include <iostream>
-
+#include <cmath>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 const char *vertexShaderSource = "#version 460 core\n"
     "layout (location = 0) in vec3 aPos;\n"
+    "layout (location = 1) in vec3 nColor;\n"
+    "out vec3 newColor;\n"
     "void main()\n"
     "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "   newColor = nColor\n;"
+    "   gl_Position = vec4(aPos, 1.0);\n"
     "}\0";//Vertex Shader
 
 const char *fragmentShaderSource = "#version 460 core\n"
+    "in vec3 newColor;\n"
     "out vec4 FragColor;\n"
     "void main()\n"
     "{\n"
-    "   FragColor = vec4(0.2f, 0.4f, 0.4f, 1.0f);\n"
+    "   FragColor = vec4(newColor, 1.0);\n"
     "}\n\0";//Fragment Shader
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) //This function will be called everytime a resize of a window happens
@@ -47,17 +51,17 @@ int main()
 
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);//This function adjusts the viewport everytime the window gets resized. It takes in two parameters, a GLFWwindow* and a function
 
-  // Specifying triangles vertices
+  // Specifying triangles vertices and colors
   float firstT[] = {
-    0.0f, 0.0f, 0.0f,
-    -0.5f, 0.0f, 0.0f,
-    -0.25f, 0.5f, 0.0f
+    0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+    -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+    -0.25f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f
   };
 
   float secondT[] ={
-    0.0f, 0.0f, 0.0f,
-    0.5f, 0.0f, 0.0f,
-    0.25f, 0.5f, 0.0f
+    0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+    0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+    0.25f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f
   };
 // Specifying the order in which the vertices will be drawn
   //unsigned int indices[] = {
@@ -75,14 +79,18 @@ int main()
   glBindVertexArray(VAO[0]); //Binding the Vertex array to openGL
   glBindBuffer(GL_ARRAY_BUFFER, VBO[0]); //Binding Vertex buffer object with GL_ARRAY_BUFFER
   glBufferData(GL_ARRAY_BUFFER, sizeof(firstT), firstT, GL_STATIC_DRAW); //Copies data (vertices) to currently bound buffer. Args (Where to copy data to, size of data in bytes, data we want to send, how we want the graphics card to manage data)
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);// Specifying the location and data of vertex attribute
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);// Specifying the location and data of vertex attribute
   glEnableVertexAttribArray(0); //Enabling the vertex attribute
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));// Specifying the location and color data of vertex attribute
+  glEnableVertexAttribArray(1); //Enabling the attribarray that is on location 1
   glBindVertexArray(VAO[1]); //Binding the Vertex array to openGL
   glBindBuffer(GL_ARRAY_BUFFER, VBO[1]); //Binding Vertex buffer object with GL_ARRAY_BUFFER
   //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); // Binding the EBO to the elebemt array buffer
   glBufferData(GL_ARRAY_BUFFER, sizeof(secondT), secondT, GL_STATIC_DRAW);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);// Specifying the location and data of vertex attribute
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);// Specifying the location and data of vertex attribute
   glEnableVertexAttribArray(0); //Enabling the vertex attribute
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));// Specifying the location and color data of vertex attribute
+  glEnableVertexAttribArray(1); //Enabling the attribarray that is on location 1
   unsigned int vertexShader; //Creating vertexShader, where the vertex shader will be stored
   vertexShader = glCreateShader(GL_VERTEX_SHADER); //Create the vertex shader, the GL_VERTEX_SHADER specifies what kind of shader we want to create
 
@@ -112,8 +120,10 @@ int main()
   {
     glClearColor(0.2f, 0.3f, 0.4f, 1.0f); //Clearing the buffer with rgb values, state setting function
     glClear(GL_COLOR_BUFFER_BIT); //Clearing the buffer with color, state using function
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //For testing, just telling to fill the triangle, but can also specify to show only the frame of it
     glUseProgram(shaderProgram); // Specifying which shader program to use, shaderProgram is where we linked vertexShader and fragmentShader together
+
     glBindVertexArray(VAO[0]); // Binding the VAO
     glDrawArrays(GL_TRIANGLES, 0, 5); // Telling it to draw tringles based on the element buffer
 
