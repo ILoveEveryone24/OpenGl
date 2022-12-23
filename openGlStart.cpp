@@ -27,7 +27,7 @@ const char *fragmentShaderSource = "#version 460 core\n"
     "uniform sampler2D ourTexture2;\n"
     "void main()\n"
     "{\n"
-    "   FragColor = mix(texture(ourTexture1, TexCoord) * vec4(myColor, 1.0), texture(ourTexture2, TexCoord), 0.2);\n"
+    "   FragColor = mix(texture(ourTexture1, TexCoord), texture(ourTexture2, TexCoord), 0.8);\n" //Removed * vec4(myColor, 1.0)
     "}\n\0";//Fragment Shader
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) //This function will be called everytime a resize of a window happens
@@ -84,11 +84,30 @@ int main()
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   int width, height, nrChannels;
+  stbi_set_flip_vertically_on_load(true);
   unsigned char* data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
 
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
   glGenerateMipmap(GL_TEXTURE_2D);
 
+  stbi_image_free(data);
+
+  unsigned int texture2;
+  glGenTextures(1, &texture2);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, texture2);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  data = stbi_load("logo.png", &width, &height, &nrChannels, 0);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+  stbi_image_free(data);
   unsigned int VBO; //Defining vertex buffer object
   unsigned int VAO; //Defining vertex array object
   unsigned int EBO; // Defining element buffer object
@@ -101,7 +120,6 @@ int main()
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); // Binding the EBO to the elebemt array buffer
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-  stbi_image_free(data);
 
   unsigned int vertexShader; //Creating vertexShader, where the vertex shader will be stored
   vertexShader = glCreateShader(GL_VERTEX_SHADER); //Create the vertex shader, the GL_VERTEX_SHADER specifies what kind of shader we want to create
@@ -134,6 +152,12 @@ int main()
 
   glEnableVertexAttribArray(2);
 
+  glUseProgram(shaderProgram); // Specifying which shader program to use, shaderProgram is where we linked vertexShader and fragmentShader together
+
+  glUniform1i(glGetUniformLocation(shaderProgram,"ourTexture1"), 0);
+
+  glUniform1i(glGetUniformLocation(shaderProgram,"ourTexture2"), 1);
+
   glDeleteShader(vertexShader); //Deleting the vertex shader, since we dont need it anymore
   glDeleteShader(fragmentShader); //Deleting the fragment shader, since we dont need it anymore
 
@@ -142,7 +166,10 @@ int main()
   {
     glClearColor(0.2f, 0.3f, 0.4f, 1.0f); //Clearing the buffer with rgb values, state setting function
     glClear(GL_COLOR_BUFFER_BIT); //Clearing the buffer with color, state using function
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture2);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // Telling it to draw tringles based on the element buffer
     glUseProgram(shaderProgram); // Specifying which shader program to use, shaderProgram is where we linked vertexShader and fragmentShader together
 
