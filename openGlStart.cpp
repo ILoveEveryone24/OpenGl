@@ -1,24 +1,33 @@
+#define STB_IMAGE_IMPLEMENTATION
+
 #include <iostream>
 #include <cmath>
+#include "stb_image.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 const char *vertexShaderSource = "#version 460 core\n"
     "layout (location = 0) in vec3 aPos;\n"
-    "layout (location = 1) in vec3 nColor;\n"
-    "out vec3 newColor;\n"
+    "layout (location = 1) in vec3 aColor;\n"
+    "layout (location = 2) in vec2 textur;\n"
+    "out vec2 TexCoord;\n"
+    "out vec3 myColor;\n"
     "void main()\n"
     "{\n"
-    "   newColor = nColor\n;"
     "   gl_Position = vec4(aPos, 1.0);\n"
+    "   myColor = aColor;\n"
+    "   TexCoord = textur;\n"
     "}\0";//Vertex Shader
 
 const char *fragmentShaderSource = "#version 460 core\n"
-    "in vec3 newColor;\n"
     "out vec4 FragColor;\n"
+    "in vec2 TexCoord;\n"
+    "in vec3 myColor;\n"
+    "uniform sampler2D ourTexture1;\n"
+    "uniform sampler2D ourTexture2;\n"
     "void main()\n"
     "{\n"
-    "   FragColor = vec4(newColor, 1.0);\n"
+    "   FragColor = mix(texture(ourTexture1, TexCoord) * vec4(myColor, 1.0), texture(ourTexture2, TexCoord), 0.2);\n"
     "}\n\0";//Fragment Shader
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) //This function will be called everytime a resize of a window happens
@@ -51,46 +60,49 @@ int main()
 
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);//This function adjusts the viewport everytime the window gets resized. It takes in two parameters, a GLFWwindow* and a function
 
-  // Specifying triangles vertices and colors
-  float firstT[] = {
-    0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-    -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-    -0.25f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f
+  // Specifying square vertices
+  float vertices[] = {
+    0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+    0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+    -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+    -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f
   };
+// Specifying the order in which 2 triangles should be drawn
+  unsigned int indices[] = {
+    0, 1, 2,
+    2, 3, 1
+};
 
-  float secondT[] ={
-    0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-    0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-    0.25f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f
-  };
-// Specifying the order in which the vertices will be drawn
-  //unsigned int indices[] = {
-   // 0, 1, 2,
-  //  0, 3, 4,
- //   2, 5, 4
-//};
+  unsigned int texture;
+  glGenTextures(1, &texture);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, texture);
 
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  unsigned int VBO[2], VAO[2]; //Defining Vertex buffer object and vertex array object
-  //unsigned int EBO; // Defining element buffer object
-  glGenVertexArrays(2, VAO); // Generates Vertex Array with the VAO
-  glGenBuffers(2, VBO); //Generating buffer with 2 parameters, amount of buffers, and reference to a buffer
- // glGenBuffers(1, &EBO); // Generating the element buffer object with EBO
-  glBindVertexArray(VAO[0]); //Binding the Vertex array to openGL
-  glBindBuffer(GL_ARRAY_BUFFER, VBO[0]); //Binding Vertex buffer object with GL_ARRAY_BUFFER
-  glBufferData(GL_ARRAY_BUFFER, sizeof(firstT), firstT, GL_STATIC_DRAW); //Copies data (vertices) to currently bound buffer. Args (Where to copy data to, size of data in bytes, data we want to send, how we want the graphics card to manage data)
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);// Specifying the location and data of vertex attribute
-  glEnableVertexAttribArray(0); //Enabling the vertex attribute
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));// Specifying the location and color data of vertex attribute
-  glEnableVertexAttribArray(1); //Enabling the attribarray that is on location 1
-  glBindVertexArray(VAO[1]); //Binding the Vertex array to openGL
-  glBindBuffer(GL_ARRAY_BUFFER, VBO[1]); //Binding Vertex buffer object with GL_ARRAY_BUFFER
-  //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); // Binding the EBO to the elebemt array buffer
-  glBufferData(GL_ARRAY_BUFFER, sizeof(secondT), secondT, GL_STATIC_DRAW);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);// Specifying the location and data of vertex attribute
-  glEnableVertexAttribArray(0); //Enabling the vertex attribute
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));// Specifying the location and color data of vertex attribute
-  glEnableVertexAttribArray(1); //Enabling the attribarray that is on location 1
+  int width, height, nrChannels;
+  unsigned char* data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+  unsigned int VBO; //Defining vertex buffer object
+  unsigned int VAO; //Defining vertex array object
+  unsigned int EBO; // Defining element buffer object
+  glGenVertexArrays(1, &VAO); // Generates Vertex Array with the VAO
+  glGenBuffers(1, &VBO); //Generating buffer with 2 parameters, amount of buffers, and reference to a buffer
+  glGenBuffers(1, &EBO); // Generating the element buffer object with EBO
+  glBindVertexArray(VAO); //Binding the Vertex array to openGL
+  glBindBuffer(GL_ARRAY_BUFFER, VBO); //Binding Vertex buffer object with GL_ARRAY_BUFFER
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //Copies data (vertices) to currently bound buffer. Args (Where to copy data to, size of data in bytes, data we want to send, how we want the graphics card to manage data)
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); // Binding the EBO to the elebemt array buffer
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+  stbi_image_free(data);
+
   unsigned int vertexShader; //Creating vertexShader, where the vertex shader will be stored
   vertexShader = glCreateShader(GL_VERTEX_SHADER); //Create the vertex shader, the GL_VERTEX_SHADER specifies what kind of shader we want to create
 
@@ -110,7 +122,17 @@ int main()
   glAttachShader(shaderProgram, fragmentShader); //Attaching fragmentShaders to shaderProgram
   glLinkProgram(shaderProgram); //Linking all the attached shaders together i.e. linking vertex shaders and fragment shaders together
 
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);// Specifying the location and data of vertex attribute
 
+  glEnableVertexAttribArray(0); //Enabling the vertex attribute
+
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3*sizeof(float)));// Specifying the location and data of vertex attribute
+
+  glEnableVertexAttribArray(1);
+
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+
+  glEnableVertexAttribArray(2);
 
   glDeleteShader(vertexShader); //Deleting the vertex shader, since we dont need it anymore
   glDeleteShader(fragmentShader); //Deleting the fragment shader, since we dont need it anymore
@@ -120,15 +142,11 @@ int main()
   {
     glClearColor(0.2f, 0.3f, 0.4f, 1.0f); //Clearing the buffer with rgb values, state setting function
     glClear(GL_COLOR_BUFFER_BIT); //Clearing the buffer with color, state using function
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //For testing, just telling to fill the triangle, but can also specify to show only the frame of it
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // Telling it to draw tringles based on the element buffer
     glUseProgram(shaderProgram); // Specifying which shader program to use, shaderProgram is where we linked vertexShader and fragmentShader together
 
-    glBindVertexArray(VAO[0]); // Binding the VAO
-    glDrawArrays(GL_TRIANGLES, 0, 5); // Telling it to draw tringles based on the element buffer
-
-    glBindVertexArray(VAO[1]); // Binding the VAO
-    glDrawArrays(GL_TRIANGLES, 0, 5); // Telling it to draw tringles based on the element buffer
+    glBindVertexArray(VAO); // Binding the VAO
     glfwSwapBuffers(window); //Swaps the back buffer with the front buffer
     glfwPollEvents(); //Registers events like mouse clicks, keyboard inputs, etc.
   }
