@@ -27,7 +27,7 @@ const char *fragmentShaderSource = "#version 460 core\n"
     "uniform sampler2D ourTexture2;\n"
     "void main()\n"
     "{\n"
-    "   FragColor = mix(texture(ourTexture1, vec2(TexCoord.x *2, TexCoord.y*2)), texture(ourTexture2, TexCoord), 0.3);\n" //Removed * vec4(myColor, 1.0)
+    "   FragColor = mix(texture(ourTexture1, vec2(TexCoord.x, TexCoord.y)), texture(ourTexture2, TexCoord), 0.3);\n" //Removed * vec4(myColor, 1.0)
     "}\n\0";//Fragment Shader
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) //This function will be called everytime a resize of a window happens
@@ -62,10 +62,10 @@ int main()
 
   // Specifying square vertices
   float vertices[] = {
-    0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 2.0f, 2.0f,
-    0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 2.0f, 0.0f,
-    -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 2.0f,
-    -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f
+    0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f,
+    0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 0.4f,
+    -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.4f, 0.5f,
+    -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.4f, 0.4f
   };
 // Specifying the order in which 2 triangles should be drawn
   unsigned int indices[] = {
@@ -102,8 +102,8 @@ int main()
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
   int width, height, nrChannels;
   stbi_set_flip_vertically_on_load(true);
@@ -120,8 +120,8 @@ int main()
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
   data = stbi_load("logo.png", &width, &height, &nrChannels, 0);
 
