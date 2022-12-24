@@ -27,7 +27,7 @@ const char *fragmentShaderSource = "#version 460 core\n"
     "uniform sampler2D ourTexture2;\n"
     "void main()\n"
     "{\n"
-    "   FragColor = mix(texture(ourTexture1, TexCoord), texture(ourTexture2, TexCoord), 0.8);\n" //Removed * vec4(myColor, 1.0)
+    "   FragColor = mix(texture(ourTexture1, TexCoord), texture(ourTexture2, TexCoord), 0.5);\n" //Removed * vec4(myColor, 1.0)
     "}\n\0";//Fragment Shader
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) //This function will be called everytime a resize of a window happens
@@ -73,9 +73,31 @@ int main()
     2, 3, 1
 };
 
+  unsigned int VBO; //Defining vertex buffer object
+  unsigned int VAO; //Defining vertex array object
+  unsigned int EBO; // Defining element buffer object
+  glGenVertexArrays(1, &VAO); // Generates Vertex Array with the VAO
+  glGenBuffers(1, &VBO); //Generating buffer with 2 parameters, amount of buffers, and reference to a buffer
+  glGenBuffers(1, &EBO); // Generating the element buffer object with EBO
+  glBindVertexArray(VAO); //Binding the Vertex array to openGL
+  glBindBuffer(GL_ARRAY_BUFFER, VBO); //Binding Vertex buffer object with GL_ARRAY_BUFFER
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //Copies data (vertices) to currently bound buffer. Args (Where to copy data to, size of data in bytes, data we want to send, how we want the graphics card to manage data)
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); // Binding the EBO to the elebemt array buffer
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);// Specifying the location and data of vertex attribute
+
+  glEnableVertexAttribArray(0); //Enabling the vertex attribute
+
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3*sizeof(float)));// Specifying the location and data of vertex attribute
+
+  glEnableVertexAttribArray(1);
+
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+
+  glEnableVertexAttribArray(2);
   unsigned int texture;
   glGenTextures(1, &texture);
-  glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, texture);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -94,7 +116,6 @@ int main()
 
   unsigned int texture2;
   glGenTextures(1, &texture2);
-  glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, texture2);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -104,22 +125,10 @@ int main()
 
   data = stbi_load("logo.png", &width, &height, &nrChannels, 0);
 
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
   glGenerateMipmap(GL_TEXTURE_2D);
 
   stbi_image_free(data);
-  unsigned int VBO; //Defining vertex buffer object
-  unsigned int VAO; //Defining vertex array object
-  unsigned int EBO; // Defining element buffer object
-  glGenVertexArrays(1, &VAO); // Generates Vertex Array with the VAO
-  glGenBuffers(1, &VBO); //Generating buffer with 2 parameters, amount of buffers, and reference to a buffer
-  glGenBuffers(1, &EBO); // Generating the element buffer object with EBO
-  glBindVertexArray(VAO); //Binding the Vertex array to openGL
-  glBindBuffer(GL_ARRAY_BUFFER, VBO); //Binding Vertex buffer object with GL_ARRAY_BUFFER
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //Copies data (vertices) to currently bound buffer. Args (Where to copy data to, size of data in bytes, data we want to send, how we want the graphics card to manage data)
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); // Binding the EBO to the elebemt array buffer
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
 
   unsigned int vertexShader; //Creating vertexShader, where the vertex shader will be stored
   vertexShader = glCreateShader(GL_VERTEX_SHADER); //Create the vertex shader, the GL_VERTEX_SHADER specifies what kind of shader we want to create
@@ -140,23 +149,11 @@ int main()
   glAttachShader(shaderProgram, fragmentShader); //Attaching fragmentShaders to shaderProgram
   glLinkProgram(shaderProgram); //Linking all the attached shaders together i.e. linking vertex shaders and fragment shaders together
 
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);// Specifying the location and data of vertex attribute
-
-  glEnableVertexAttribArray(0); //Enabling the vertex attribute
-
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3*sizeof(float)));// Specifying the location and data of vertex attribute
-
-  glEnableVertexAttribArray(1);
-
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-
-  glEnableVertexAttribArray(2);
-
   glUseProgram(shaderProgram); // Specifying which shader program to use, shaderProgram is where we linked vertexShader and fragmentShader together
 
-  glUniform1i(glGetUniformLocation(shaderProgram,"ourTexture1"), 0);
+  glUniform1i(glGetUniformLocation(shaderProgram,"ourTexture2"), 0);
 
-  glUniform1i(glGetUniformLocation(shaderProgram,"ourTexture2"), 1);
+  glUniform1i(glGetUniformLocation(shaderProgram,"ourTexture1"), 1);
 
   glDeleteShader(vertexShader); //Deleting the vertex shader, since we dont need it anymore
   glDeleteShader(fragmentShader); //Deleting the fragment shader, since we dont need it anymore
