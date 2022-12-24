@@ -2,6 +2,9 @@
 
 #include <iostream>
 #include <cmath>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "stb_image.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -12,9 +15,10 @@ const char *vertexShaderSource = "#version 460 core\n"
     "layout (location = 2) in vec2 textur;\n"
     "out vec2 TexCoord;\n"
     "out vec3 myColor;\n"
+    "uniform mat4 transform;\n"
     "void main()\n"
     "{\n"
-    "   gl_Position = vec4(aPos, 1.0);\n"
+    "   gl_Position = transform * vec4(aPos, 1.0);\n"
     "   myColor = aColor;\n"
     "   TexCoord = textur;\n"
     "}\0";//Vertex Shader
@@ -77,6 +81,7 @@ int main()
     0, 1, 2,
     2, 3, 1
 };
+
 
   unsigned int VBO; //Defining vertex buffer object
   unsigned int VAO; //Defining vertex array object
@@ -160,6 +165,8 @@ int main()
 
   glUniform1i(glGetUniformLocation(shaderProgram,"ourTexture1"), 1);
 
+  unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
+
   glDeleteShader(vertexShader); //Deleting the vertex shader, since we dont need it anymore
   glDeleteShader(fragmentShader); //Deleting the fragment shader, since we dont need it anymore
 
@@ -174,8 +181,14 @@ int main()
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, texture2);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // Telling it to draw tringles based on the element buffer
+
+    glm::mat4 trans = glm::mat4(1.0f);
+    trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+    trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+
     glUseProgram(shaderProgram); // Specifying which shader program to use, shaderProgram is where we linked vertexShader and fragmentShader together
 
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
     glUniform1f(glGetUniformLocation(shaderProgram, "mixingVal"), mixValue);
     glBindVertexArray(VAO); // Binding the VAO
     glfwSwapBuffers(window); //Swaps the back buffer with the front buffer
@@ -190,7 +203,7 @@ void inputLogger(GLFWwindow* window)
 {
   if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
     {
-      mixValue+=0.1;
+      mixValue+=0.01;
       if(mixValue >= 1.0f)
         {
           mixValue = 1.0f;
@@ -198,7 +211,7 @@ void inputLogger(GLFWwindow* window)
     }
   if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
     {
-      mixValue-=0.1;
+      mixValue-=0.01;
       if(mixValue <= 0.0f)
         {
           mixValue = 0.0f;
