@@ -28,13 +28,17 @@ const char *fragmentShaderSource = "#version 460 core\n"
     "uniform sampler2D ourTexture2;\n"
     "void main()\n"
     "{\n"
-    "   FragColor = mix(texture(ourTexture1, vec2(TexCoord.x, TexCoord.y)) * (vec4(myColor, 1.0)), texture(ourTexture2, TexCoord), 0.3);\n" //Removed * vec4(myColor, 1.0)
+    "   FragColor = mix(texture(ourTexture1, vec2(TexCoord.x, TexCoord.y)) * (vec4(myColor, 1.0)), texture(ourTexture2, TexCoord), mixingVal);\n" //Removed * vec4(myColor, 1.0)
     "}\n\0";//Fragment Shader
+
+float mixValue = 0.0f;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) //This function will be called everytime a resize of a window happens
 {
   glViewport(0, 0, width, height); //Specifies the area where to render openGL on the window, first two parameters tells the function where top left corner is, and the last two are width and height;
 }
+
+void inputLogger(GLFWwindow* window);
 
 int main()
 {
@@ -159,9 +163,10 @@ int main()
   glDeleteShader(vertexShader); //Deleting the vertex shader, since we dont need it anymore
   glDeleteShader(fragmentShader); //Deleting the fragment shader, since we dont need it anymore
 
-
   while(!glfwWindowShouldClose(window)) //glfwWindowShouldClose is true when an attempt of closing a window happens
   {
+    inputLogger(window);
+
     glClearColor(0.2f, 0.3f, 0.4f, 1.0f); //Clearing the buffer with rgb values, state setting function
     glClear(GL_COLOR_BUFFER_BIT); //Clearing the buffer with color, state using function
     glActiveTexture(GL_TEXTURE0);
@@ -171,6 +176,7 @@ int main()
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // Telling it to draw tringles based on the element buffer
     glUseProgram(shaderProgram); // Specifying which shader program to use, shaderProgram is where we linked vertexShader and fragmentShader together
 
+    glUniform1f(glGetUniformLocation(shaderProgram, "mixingVal"), mixValue);
     glBindVertexArray(VAO); // Binding the VAO
     glfwSwapBuffers(window); //Swaps the back buffer with the front buffer
     glfwPollEvents(); //Registers events like mouse clicks, keyboard inputs, etc.
@@ -178,4 +184,24 @@ int main()
 
   glfwTerminate(); //Terminates all windows and frees allocated resources
   return 0; //Returns 0 stating everything went fine
+}
+
+void inputLogger(GLFWwindow* window)
+{
+  if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+      mixValue+=0.1;
+      if(mixValue >= 1.0f)
+        {
+          mixValue = 1.0f;
+        }
+    }
+  if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+      mixValue-=0.1;
+      if(mixValue <= 0.0f)
+        {
+          mixValue = 0.0f;
+        }
+    }
 }
