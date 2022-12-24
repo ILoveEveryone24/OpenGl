@@ -27,7 +27,7 @@ const char *fragmentShaderSource = "#version 460 core\n"
     "uniform sampler2D ourTexture2;\n"
     "void main()\n"
     "{\n"
-    "   FragColor = mix(texture(ourTexture1, TexCoord), texture(ourTexture2, TexCoord), 0.5);\n" //Removed * vec4(myColor, 1.0)
+    "   FragColor = mix(texture(ourTexture1, vec2(TexCoord.x *(-1), TexCoord.y)), texture(ourTexture2, TexCoord), 0.3);\n" //Removed * vec4(myColor, 1.0)
     "}\n\0";//Fragment Shader
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) //This function will be called everytime a resize of a window happens
