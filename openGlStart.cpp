@@ -11,7 +11,7 @@
 
 const char *vertexShaderSource = "#version 460 core\n"
     "layout (location = 0) in vec3 aPos;\n"
-    "layout (location = 1) in vec3 aColor;\n"
+    //"layout (location = 1) in vec3 aColor;\n"
     "layout (location = 2) in vec2 textur;\n"
     "out vec2 TexCoord;\n"
     "out vec3 myColor;\n"
@@ -22,20 +22,20 @@ const char *vertexShaderSource = "#version 460 core\n"
     "void main()\n"
     "{\n"
     "   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
-    "   myColor = aColor;\n"
+    //"   myColor = aColor;\n"
     "   TexCoord = textur;\n"
     "}\0";//Vertex Shader
 
 const char *fragmentShaderSource = "#version 460 core\n"
     "out vec4 FragColor;\n"
     "in vec2 TexCoord;\n"
-    "in vec3 myColor;\n"
+    //"in vec3 myColor;\n"
     "uniform float mixingVal;\n"
     "uniform sampler2D ourTexture1;\n"
     "uniform sampler2D ourTexture2;\n"
     "void main()\n"
     "{\n"
-    "   FragColor = mix(texture(ourTexture1, vec2(TexCoord.x, TexCoord.y)) * (vec4(myColor, 1.0)), texture(ourTexture2, TexCoord), mixingVal);\n" //Removed * vec4(myColor, 1.0)
+    "   FragColor = mix(texture(ourTexture1, vec2(TexCoord.x, TexCoord.y)), texture(ourTexture2, TexCoord), mixingVal);\n" //Removed * vec4(myColor, 1.0)
     "}\n\0";//Fragment Shader
 
 float mixValue = 0.0f;
@@ -73,40 +73,83 @@ int main()
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);//This function adjusts the viewport everytime the window gets resized. It takes in two parameters, a GLFWwindow* and a function
 
   // Specifying square vertices
+  //float vertices[] = {
+    //0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+    //0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+    //-0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+    //-0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f
+  //};
   float vertices[] = {
-    0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-    0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-    -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-    -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f
-  };
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+    };
 // Specifying the order in which 2 triangles should be drawn
-  unsigned int indices[] = {
-    0, 1, 2,
-    2, 3, 1
-};
+  //unsigned int indices[] = {
+    //0, 1, 2,
+    //2, 3, 1
+//};
 
 
   unsigned int VBO; //Defining vertex buffer object
   unsigned int VAO; //Defining vertex array object
-  unsigned int EBO; // Defining element buffer object
+  //unsigned int EBO; // Defining element buffer object
   glGenVertexArrays(1, &VAO); // Generates Vertex Array with the VAO
   glGenBuffers(1, &VBO); //Generating buffer with 2 parameters, amount of buffers, and reference to a buffer
-  glGenBuffers(1, &EBO); // Generating the element buffer object with EBO
+  //glGenBuffers(1, &EBO); // Generating the element buffer object with EBO
   glBindVertexArray(VAO); //Binding the Vertex array to openGL
   glBindBuffer(GL_ARRAY_BUFFER, VBO); //Binding Vertex buffer object with GL_ARRAY_BUFFER
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //Copies data (vertices) to currently bound buffer. Args (Where to copy data to, size of data in bytes, data we want to send, how we want the graphics card to manage data)
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); // Binding the EBO to the elebemt array buffer
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+  //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); // Binding the EBO to the elebemt array buffer
+  //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);// Specifying the location and data of vertex attribute
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);// Specifying the location and data of vertex attribute
 
   glEnableVertexAttribArray(0); //Enabling the vertex attribute
 
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3*sizeof(float)));// Specifying the location and data of vertex attribute
+  //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3*sizeof(float)));// Specifying the location and data of vertex attribute
 
-  glEnableVertexAttribArray(1);
+  //glEnableVertexAttribArray(1);
 
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
   glEnableVertexAttribArray(2);
   unsigned int texture;
@@ -173,9 +216,6 @@ int main()
   glDeleteShader(vertexShader); //Deleting the vertex shader, since we dont need it anymore
   glDeleteShader(fragmentShader); //Deleting the fragment shader, since we dont need it anymore
 
-  glm::mat4 model = glm::mat4(1.0f);
-  model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
   glm::mat4 view = glm::mat4(1.0f);
   view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
@@ -193,7 +233,10 @@ int main()
     glBindTexture(GL_TEXTURE_2D, texture);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, texture2);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // Telling it to draw tringles based on the element buffer
+    //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // Telling it to draw tringles based on the element buffer
+
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
     int modelLoc = glGetUniformLocation(shaderProgram, "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -202,19 +245,10 @@ int main()
     int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-    glm::mat4 trans = glm::mat4(1.0f);
-    trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-    trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
-
-    trans = glm::mat4(1.0f);
-    trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
-    trans = glm::scale(trans, glm::vec3(cos((float)glfwGetTime()), sin((float)glfwGetTime()), 0.0f));
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
     glUseProgram(shaderProgram); // Specifying which shader program to use, shaderProgram is where we linked vertexShader and fragmentShader together
 
-    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
     glUniform1f(glGetUniformLocation(shaderProgram, "mixingVal"), mixValue);
     glBindVertexArray(VAO); // Binding the VAO
     glfwSwapBuffers(window); //Swaps the back buffer with the front buffer
