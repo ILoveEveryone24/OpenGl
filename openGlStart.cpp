@@ -16,9 +16,12 @@ const char *vertexShaderSource = "#version 460 core\n"
     "out vec2 TexCoord;\n"
     "out vec3 myColor;\n"
     "uniform mat4 transform;\n"
+    "uniform mat4 model;\n"
+    "uniform mat4 view;\n"
+    "uniform mat4 projection;\n"
     "void main()\n"
     "{\n"
-    "   gl_Position = transform * vec4(aPos, 1.0);\n"
+    "   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
     "   myColor = aColor;\n"
     "   TexCoord = textur;\n"
     "}\0";//Vertex Shader
@@ -170,6 +173,16 @@ int main()
   glDeleteShader(vertexShader); //Deleting the vertex shader, since we dont need it anymore
   glDeleteShader(fragmentShader); //Deleting the fragment shader, since we dont need it anymore
 
+  glm::mat4 model = glm::mat4(1.0f);
+  model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+  glm::mat4 view = glm::mat4(1.0f);
+  view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+  glm::mat4 projection;
+  projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+
+
   while(!glfwWindowShouldClose(window)) //glfwWindowShouldClose is true when an attempt of closing a window happens
   {
     inputLogger(window);
@@ -181,6 +194,13 @@ int main()
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, texture2);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // Telling it to draw tringles based on the element buffer
+
+    int modelLoc = glGetUniformLocation(shaderProgram, "model");
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    int viewLoc = glGetUniformLocation(shaderProgram, "view");
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
     glm::mat4 trans = glm::mat4(1.0f);
     trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
