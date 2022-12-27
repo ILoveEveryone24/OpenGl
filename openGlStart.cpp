@@ -40,6 +40,9 @@ const char *fragmentShaderSource = "#version 460 core\n"
 
 float mixValue = 0.0f;
 
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -231,6 +234,10 @@ int main()
   {
     inputLogger(window);
 
+    float currentFrame = (float)glfwGetTime();
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+
     glClearColor(0.2f, 0.3f, 0.4f, 1.0f); //Clearing the buffer with rgb values, state setting function
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Clearing the buffer with color, state using function
     glActiveTexture(GL_TEXTURE0);
@@ -287,7 +294,7 @@ void inputLogger(GLFWwindow* window)
           mixValue = 0.0f;
         }
     }
-  const float cameraSpeed = 0.10f;
+  const float cameraSpeed = 1.5f * deltaTime;
   if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     cameraPos += cameraSpeed * cameraFront;
   if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
